@@ -1,0 +1,43 @@
+name: ReactJS CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Étape 1 : Cloner le code
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      # Étape 2 : Configurer Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      # Étape 3 : Installer les dépendances
+      - name: Install dependencies
+        run: npm install
+
+      # Étape 4 : Construire le projet
+      - name: Build project
+        run: npm run build
+
+      # Étape 5 : Configurer l'identité Git
+      - name: Setup Git identity
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      # Étape 6 : Configurer l'URL Git avec token
+      - name: Setup GitHub Pages remote URL
+        run: git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+
+      # Étape 7 : Déployer sur GitHub Pages
+      - name: Deploy to GitHub Pages
+        run: npm run deploy
