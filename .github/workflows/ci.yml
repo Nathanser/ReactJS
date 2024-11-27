@@ -28,7 +28,13 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # Étape 5 : Déployer sur GitHub Pages
+      # Étape 5 : Configurer l'identité Git
+      - name: Setup Git identity
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      # Étape 6 : Déployer sur GitHub Pages
       - name: Deploy to GitHub Pages
         run: npm run deploy
         env:
