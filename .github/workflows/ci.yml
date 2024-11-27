@@ -10,20 +10,25 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      # Étape 1 : Cloner le code
       - name: Checkout code
         uses: actions/checkout@v3
         
+      # Étape 2 : Configurer Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 16
 
+      # Étape 3 : Installer les dépendances
       - name: Install dependencies
         run: npm install
 
+      # Étape 4 : Construire le projet
       - name: Build project
         run: npm run build
 
+      # Étape 5 : Déployer sur GitHub Pages
       - name: Deploy to GitHub Pages
         run: npm run deploy
         env:
