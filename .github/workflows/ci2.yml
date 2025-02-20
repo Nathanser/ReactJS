@@ -3,7 +3,7 @@ name: Deploy to AWS (Dev)
 on:
   push:
     branches:
-      - dev
+      - main
 
 jobs:
   deploy:
@@ -28,10 +28,11 @@ jobs:
 
       - name: Deploy to AWS
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            cd /home/nathan/AWS/ReactJS
-            git pull origin dev
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            cd ${{ secrets.WORK_DIR }}
+            git pull origin ${{ secrets.MAIN_BRANCH }}
           EOF
 
-      - name: Cleanup SSH Key
-        run: rm -rf ~/.ssh
+      - name: Clean up SSH key
+        run: |
+          rm -rf ~/.ssh
