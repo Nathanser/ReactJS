@@ -26,7 +26,7 @@ jobs:
       - name: Test SSH Connection
         run: ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo Connected!"
 
-      - name: Deploy to AWS
+        - name: Deploy to AWS
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd ${{ secrets.WORK_DIR }}
@@ -34,19 +34,27 @@ jobs:
             # Vérifier qu'on est dans le bon répertoire
             pwd
             ls -la
+            
+            # Assurer qu'on est bien sur la branche dev
+            git checkout dev
+            git pull origin dev
 
-            # Pull le projet
-            git pull origin ${{ secrets.MAIN_BRANCH }}
+            # Vérifier la présence du fichier docker-compose.yml
+            if [ ! -f "docker-compose.yml" ]; then
+              echo "Erreur : Fichier docker-compose.yml introuvable."
+              exit 1
+            fi
 
             # Arrêter et supprimer l'ancien conteneur
-            ./docker-compose down
+            docker-compose down
 
             # Supprimer les anciens conteneurs et images
             docker system prune -af
 
             # Reconstruire et redémarrer le conteneur
-            ./docker-compose up --build -d
+            docker-compose up --build -d
           EOF
+
 
     
       - name: Clean up SSH key
