@@ -26,16 +26,16 @@ jobs:
       - name: Test SSH Connection
         run: ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo Connected!"
 
-        - name: Deploy to AWS
+      - name: Deploy to AWS
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} <<EOF
             cd ${{ secrets.WORK_DIR }}
             
             # Vérifier qu'on est dans le bon répertoire
             pwd
             ls -la
             
-            # Assurer qu'on est bien sur la branche dev
+            # S'assurer d'être sur la branche dev et récupérer les dernières modifications
             git checkout dev
             git pull origin dev
 
@@ -55,8 +55,5 @@ jobs:
             docker-compose up --build -d
           EOF
 
-
-  
       - name: Clean up SSH key
-        run: |
-          rm -rf ~/.ssh
+        run: rm -rf ~/.ssh
