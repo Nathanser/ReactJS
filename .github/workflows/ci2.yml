@@ -39,7 +39,7 @@ jobs:
             git pull origin ${{ secrets.MAIN_BRANCH }}
 
             # Vérifier la présence du fichier docker-compose.yml
-            if [ ! -f "docker-compose.yml" ]; then
+            if [ ! -f "./docker-compose.yml" ]; then
               echo "Erreur : Fichier docker-compose.yml introuvable."
               exit 1
             fi
