@@ -3,7 +3,7 @@ name: Deploy to AWS (Dev)
 on:
   push:
     branches:
-      - dev
+      - main
 
 jobs:
   deploy:
@@ -35,9 +35,9 @@ jobs:
             pwd
             ls -la
             
-            # S'assurer d'être sur la branche dev et récupérer les dernières modifications
-            git checkout dev
-            git pull origin dev
+            # S'assurer d'être sur la branche main et récupérer les dernières modifications
+            git checkout main
+            git pull origin main
 
             # Vérifier la présence du fichier docker-compose.yml
             if [ ! -f "docker-compose.yml" ]; then
