@@ -19,7 +19,7 @@ jobs:
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | base64 --decode > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
@@ -28,11 +28,32 @@ jobs:
 
       - name: Deploy to AWS
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} <<EOF
             cd ${{ secrets.WORK_DIR }}
-            git pull origin ${{ secrets.MAIN_BRANCH }}
+            
+            # Vérifier qu'on est dans le bon répertoire
+            pwd
+            ls -la
+            
+            # S'assurer d'être sur la branche main et récupérer les dernières modifications
+            git checkout main
+            git pull origin main
+
+            # Vérifier la présence du fichier docker-compose.yml
+            if [ ! -f "docker-compose.yml" ]; then
+              echo "Erreur : Fichier docker-compose.yml introuvable."
+              exit 1
+            fi
+
+            # Arrêter et supprimer l'ancien conteneur
+            docker-compose down
+
+            # Supprimer les anciens conteneurs et images
+            docker system prune -af
+
+            # Reconstruire et redémarrer le conteneur
+            docker-compose up --build -d
           EOF
 
       - name: Clean up SSH key
-        run: |
-          rm -rf ~/.ssh
+        run: rm -rf ~/.ssh
