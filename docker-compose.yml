@@ -31,4 +31,5 @@ services:
       - "traefik.http.routers.react-app.entrypoints=websecure"
       - "traefik.http.routers.react-app.tls.certresolver=myresolver"
       - "traefik.http.services.react-app.loadbalancer.server.port=3000"     
+
       
