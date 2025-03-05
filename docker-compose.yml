@@ -5,19 +5,22 @@ services:
     image: traefik:v2.10
     restart: always
     command:
-      - "--api.insecure=false" # Désactive l'interface web en prod
+      - "--api.insecure=true" # Interface de Traefik (à désactiver en prod)
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.myresolver.acme.email=ton_email@example.com"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=ton-nathan.serror@gmail.com" # Remplace par ton email
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-      - "--certificatesresolvers.myresolver.acme.httpChallenge.entryPoint=web"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
     ports:
       - "80:80"
-      - "443:443"  # Ajout du port HTTPS
+      - "443:443"
+      - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "./acme.json:/letsencrypt/acme.json"
+      - "./letsencrypt:/letsencrypt" # Stockage des certificats
 
   react-app:
     build: .
