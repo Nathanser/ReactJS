@@ -1,8 +1,23 @@
 version: '3'
 
 services:
+  traefik:
+    image: traefik:v2.10
+    restart: always
+    command:
+      - "--api.insecure=true" # Interface de Traefik (à désactiver en prod)
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"   # Redirige le trafic HTTP vers Traefik
+      - "8080:8080" # Interface de monitoring de Traefik
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
   react-app:
     build: .
-    ports:
-      - "3000:3000"
     restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.react-app.rule=Host(`nathan.soudry-ort.online`)"
+      - "traefik.http.services.react-app.loadbalancer.server.port=3000"
