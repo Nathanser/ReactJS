@@ -7,6 +7,8 @@ services:
     command:
       - "--api.insecure=true" # Interface de Traefik (à désactiver en prod)
       - "--providers.docker=true"
+      - "--providers.file.directory=/etc/traefik"
+      - "--providers.file.watch=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
@@ -21,9 +23,12 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./letsencrypt:/letsencrypt" # Stockage des certificats
-
+      - ".:/etc/traefik"
+      
   react-app:
     build: .
+    ports:
+      - "3000:3000"
     restart: always
     labels:
       - "traefik.enable=true"
