@@ -5,14 +5,19 @@ services:
     image: traefik:v2.10
     restart: always
     command:
-      - "--api.insecure=true" # Interface de Traefik (à désactiver en prod)
+      - "--api.insecure=false" # Désactive l'interface web en prod
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.email=ton_email@example.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.myresolver.acme.httpChallenge.entryPoint=web"
     ports:
-      - "80:80"   # Redirige le trafic HTTP vers Traefik
-      - "8080:8080" # Interface de monitoring de Traefik
+      - "80:80"
+      - "443:443"  # Ajout du port HTTPS
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./acme.json:/letsencrypt/acme.json"
 
   react-app:
     build: .
@@ -20,4 +25,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.react-app.rule=Host(`nathan.soudry-ort.online`)"
+      - "traefik.http.routers.react-app.entrypoints=websecure"
+      - "traefik.http.routers.react-app.tls.certresolver=myresolver"
       - "traefik.http.services.react-app.loadbalancer.server.port=3000"
